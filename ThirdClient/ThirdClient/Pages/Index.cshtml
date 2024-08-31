@@ -1,0 +1,64 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Получить записи за последние 10 минут</h1>
+    <p></p>
+    <button id="fetchMessages">Получить</button>
+    <table border="0" class="centered" style="width: 100%;">
+        <thead>
+            <tr>
+                <th style="width: 15%;">Номер</th>
+                <th style="width: 25%;">Время</th>
+                <th style="width: 60%;">Текст</th>
+            </tr>
+        </thead>
+        <tbody id="messagesTableBody">
+            <!-- Здесь будут отображены данные -->
+        </tbody>
+    </table>
+</div>
+
+<script>
+    document.getElementById('fetchMessages').addEventListener('click', async () => {
+        const lateDate = new Date();
+        const earlyDate = new Date(lateDate.getTime() - 10 * 60000); // минус 10 минут
+
+        const earlyDateStr = earlyDate.toISOString().replace('T', ' ').substring(0, 19);
+        const lateDateStr = lateDate.toISOString().replace('T', ' ').substring(0, 19);
+
+        const uri = `http://localhost:7434/api/Messages?earlyDate=${encodeURIComponent(earlyDateStr)}&lateDate=${encodeURIComponent(lateDateStr)}`;
+
+        try {
+            const response = await fetch(uri);
+            const data = await response.json();
+
+            const tableBody = document.getElementById('messagesTableBody');
+            tableBody.innerHTML = '';   
+
+            data.messages.forEach(msg => {
+                const row = document.createElement('tr');
+
+                const noCell = document.createElement('td');
+                noCell.textContent = msg.no ?? 'N/A';
+                row.appendChild(noCell);
+
+                const dateCell = document.createElement('td');
+                dateCell.textContent = msg.dateLabel ? new Date(msg.dateLabel).toLocaleString() : 'N/A';
+                row.appendChild(dateCell);
+
+                const textCell = document.createElement('td');
+                textCell.textContent = msg.text ?? 'N/A';
+                row.appendChild(textCell);
+
+                tableBody.appendChild(row);
+            });
+
+        } catch (error) {
+            console.error('Ошибка при получении данных:', error);
+        }
+    });
+</script>

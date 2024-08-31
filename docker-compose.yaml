@@ -1,0 +1,70 @@
+version: "3.9"
+networks:
+  testcasenetwork:
+    driver: bridge
+
+services:
+  postgres_db:
+    container_name: postgres
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1984
+      POSTGRES_DB: testcase
+    ports:
+      - "5432:5432"
+    networks:
+      - testcasenetwork
+    
+  server:
+    container_name: server
+    image: "server"
+    build:
+      context: ./Server
+      dockerfile: Dockerfile
+    depends_on: 
+      - postgres_db
+    ports:
+      - "7434:8080"
+    networks:
+      - testcasenetwork
+
+
+  first-client:
+    container_name: first-client
+    image: "first-client"
+    build:
+      context: ./FirstClient
+      dockerfile: Dockerfile 
+    depends_on:
+      - server
+    ports:
+      - "7532:8080"
+    networks:
+      - testcasenetwork
+
+  second-client:
+    container_name: second-client
+    image: "second-client"
+    build:
+      context: ./SecondClient
+      dockerfile: Dockerfile
+    depends_on:
+      - server
+    ports:
+      - "7534:8080"
+    networks:
+      - testcasenetwork
+   
+  third-client:
+    container_name: third-client
+    image: "third-client"
+    build:
+      context: ./ThirdClient
+      dockerfile: Dockerfile 
+    depends_on:
+      - server
+    ports:
+      - "7536:8080" 
+    networks:
+      - testcasenetwork

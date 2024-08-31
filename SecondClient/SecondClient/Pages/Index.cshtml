@@ -1,0 +1,25 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+
+<body>
+<div class="text-center" id="main">
+    <h1 class="display-4">Сообщения</h1>
+    <table border="0" id="messages" class="centered" style="width: 100%;">
+        <tr>
+            <th style="width: 15%;">Номер</th>
+            <th style="width: 25%;">Время</th>
+            <th style="width: 60%;">Текст</th>
+        </tr>
+    </table>
+</div>
+
+@section Scripts{ 
+        <script src="~/microsoft-signalr/signalr.js"></script>
+        <script src="~/microsoft-signalr/signalr.min.js"></script>
+        <script src="~/js/message.js"></script>
+}
+
+</body>

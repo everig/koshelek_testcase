@@ -1,0 +1,86 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Создать запись</h1>
+    <p></p>
+    <form method="post">
+        <button type="button" id="startButton" onclick="startSending()" class="btn btn-primary">Начать</button>
+        <button type="button" id="stopButton" onclick="stopSending()" class="btn btn-danger" disabled>Остановить</button>
+    </form>
+</div>
+
+<script>
+    let isSending = false;
+    let intervalId;
+
+    function getRandomInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function getRandomText(length) {
+        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        let result = '';
+        for (let i = 0; i < length; i++) {
+            result += characters.charAt(Math.floor(Math.random() * characters.length));
+        }
+        return result;
+    }
+
+    function sendRequest() {
+        if (!isSending) return;
+
+        const messageNo = getRandomInt(1, 100000);
+        const messageText = getRandomText(getRandomInt(2, 128));
+
+        const data = {
+            No: messageNo,
+            Text: messageText
+        };
+
+        console.log('Sending:', data);
+
+        fetch('http://localhost:7434/api/Messages', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+            .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        // Если важен только статус, можно завершить обработку здесь
+        console.log('Request successful:', response.status);
+    })
+    .catch(error => {
+        console.error('Error during fetch operation:', error);
+    });
+
+
+        const delay = getRandomInt(1000, 5000);
+        intervalId = setTimeout(sendRequest, delay);
+    }
+
+    function startSending() {
+        isSending = true;
+        document.getElementById("startButton").disabled = true;
+        document.getElementById("stopButton").disabled = false;
+        sendRequest();  
+    }
+
+    function stopSending() {
+        isSending = false;
+        clearTimeout(intervalId);
+        document.getElementById("startButton").disabled = false;
+        document.getElementById("stopButton").disabled = true;
+    }
+</script>
+
+
+
+
